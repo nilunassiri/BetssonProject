@@ -1,5 +1,7 @@
+
 using Xunit;
 using System.Net.Http;
+using Microsoft.Extensions.Configuration;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using System.Net;
@@ -12,8 +14,25 @@ namespace Betsson.OnlineWallets.E2ETests.Services
     /// </summary>
     public class OnlineWalletControllerTests : IAsyncLifetime
     {
-        // HttpClient configured to interact with the Online Wallet API
-        private readonly HttpClient _client = new HttpClient { BaseAddress = new System.Uri("http://localhost:5002") };
+        private readonly HttpClient _client;
+        
+        public OnlineWalletControllerTests()
+        {
+            // Set up configuration
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .Build();
+        
+            var baseUrl = configuration["ApiSettings:BaseUrl"];
+            if (string.IsNullOrWhiteSpace(baseUrl))
+            {
+                throw new InvalidOperationException("Base URL is not configured.");
+            }
+
+            // Initialize HttpClient with the base URL from the configuration
+            _client = new HttpClient { BaseAddress = new System.Uri(baseUrl) };
+        }
 
         /// <summary>
         /// Initializes the test case by ensuring there is a zero balance.
