@@ -174,5 +174,31 @@ namespace Betsson.OnlineWallets.E2ETests.Services
             Assert.NotNull(balance);
             Assert.Equal(150m, balance!.Amount);
         }
+        
+        /// <summary>
+        /// Tests if depositing null is accepted
+        /// </summary>
+        [Fact]
+        public async Task NullDeposit_ShouldFail()
+        {
+            // Arrange
+            var depositResponse = await _client.PostAsJsonAsync("/OnlineWallet/Deposit", new { });
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, depositResponse.StatusCode);
+        }
+
+        /// <summary>
+        /// Tests if withdrawing null is accepted
+        /// </summary>
+        [Fact]
+        public async Task NullWithdraw_ShouldFail()
+        {
+            // Arrange
+            var withdrawalResponse = await _client.PostAsJsonAsync("/OnlineWallet/Withdraw", new { });
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, withdrawalResponse.StatusCode);
+        }
     }
 }
