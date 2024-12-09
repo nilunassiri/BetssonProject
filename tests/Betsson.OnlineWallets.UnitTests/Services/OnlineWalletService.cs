@@ -136,5 +136,40 @@ namespace Betsson.OnlineWallets.UnitTests.Services
             Assert.Equal(initialAmount - withdrawalAmount, newBalance.Amount);
         }
         
+        [Fact]
+        public async Task Deposit_UsingWithdrawalType_ThrowsInvalidCastException()
+        {
+            // Arrange
+            decimal initialAmount = 100m;
+            decimal depositAmount = 50m;
+
+            _repositoryMock.Setup(r => r.GetLastOnlineWalletEntryAsync())
+                .ReturnsAsync(new OnlineWalletEntry { BalanceBefore = 0, Amount = 
+                    initialAmount });
+
+            Withdrawal incorrectTypeDeposit = new() { Amount = depositAmount };
+
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidCastException>(
+                () => _service.DepositFundsAsync((Deposit)(object)incorrectTypeDeposit));
+        }
+        
+        [Fact]
+        public async Task Withdraw_UsingDepositType_ThrowsInvalidCastException()
+        {
+            // Arrange
+            decimal initialAmount = 200m;
+            decimal withdrawalAmount = 50m;
+
+            _repositoryMock.Setup(r => r.GetLastOnlineWalletEntryAsync())
+                .ReturnsAsync(new OnlineWalletEntry { 
+                    BalanceBefore = 0, Amount = initialAmount });
+
+            Deposit incorrectTypeWithdrawal = new() { Amount = withdrawalAmount }; // Pretend misuse
+
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidCastException>(
+                () => _service.WithdrawFundsAsync((Withdrawal)(object)incorrectTypeWithdrawal));
+        }
     }
 }
